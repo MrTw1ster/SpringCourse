@@ -1,6 +1,7 @@
-package ht5;
+package ht6;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "products")
@@ -13,6 +14,14 @@ public class Product {
     private String title;
     @Column
     private double cost;
+    @ManyToMany
+    @JoinTable(
+            name = "products_users",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> users;
+
 
     public Product(int id, String title, double cost) {
         this.id = id;
@@ -51,6 +60,14 @@ public class Product {
 
     public void setCost(double cost) {
         this.cost = cost;
+    }
+
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
     }
 
     @Override
