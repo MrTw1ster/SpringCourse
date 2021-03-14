@@ -1,5 +1,7 @@
-package ht8;
+package ht9;
 
+import ht9.exceptions.IncorrectParamException;
+import ht9.exceptions.ProductNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -8,15 +10,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/api/v1/products")
 public class ProductController {
     @Autowired
-    private ProductService productService;
+    private ht9.ProductService productService;
 
     @GetMapping
-    public List<Product> getAll(@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size) {
+    public List<ht9.ProductDto> getAll(@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size) {
         validatePagingParams(page, size);
-        Page<Product> productPage = productService.getAll(page - 1, size);
+        Page<ht9.ProductDto> productPage = productService.getAll(page - 1, size);
         if (page > productPage.getTotalPages()) {
             throw new IncorrectParamException("The total number of pages is " + productPage.getTotalPages());
         }
@@ -29,8 +31,8 @@ public class ProductController {
                                       @RequestParam(required = false) Boolean costFirst) {
         validateSortingParams(sortCost, sortTitle, costFirst);
         try {
-            return productService.getAllSorted(sortCost != null ? ht8.SortDirection.valueOf(sortCost) : null,
-                    sortTitle != null ? ht8.SortDirection.valueOf(sortTitle) : null, costFirst);
+            return productService.getAllSorted(sortCost != null ? ht9.SortDirection.valueOf(sortCost) : null,
+                    sortTitle != null ? ht9.SortDirection.valueOf(sortTitle) : null, costFirst);
         } catch (IllegalArgumentException e) {
             throw new IncorrectParamException(e.getMessage());
         }
@@ -53,24 +55,24 @@ public class ProductController {
         }
     }
 
-    @ExceptionHandler(IncorrectParamException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public String handleException(IncorrectParamException e) {
-        return e.getMessage();
-    }
-
     @GetMapping("/{id}")
-    public Product getById(@PathVariable Integer id) {
-        return productService.getById(id);
+    public ht9.ProductDto getById(@PathVariable Integer id) {
+        return productService.getById(id).orElseThrow(() -> new ProductNotFoundException("There is no product with id " + id));
     }
 
     @PostMapping
-    public Product add(@RequestBody Product product) {
-        return productService.add(product);
+    @ResponseStatus(HttpStatus.CREATED)
+    public ht9.ProductDto add(@RequestBody ht9.ProductDto product) {
+        product.setId(null);
+        return productService.addOrUpdate(product);
     }
 
-    @GetMapping("/delete/{id}")
+    @PutMapping
+    public ht9.ProductDto update(@RequestBody ht9.ProductDto product) {
+        return productService.addOrUpdate(product);
+    }
+
+    @DeleteMapping("/{id}")
     public void delete(@PathVariable Integer id) {
         productService.delete(id);
     }

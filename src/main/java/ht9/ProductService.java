@@ -1,4 +1,4 @@
-package ht8;
+package ht9;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -7,26 +7,27 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductService {
 
     @Autowired
-    private ht8.ProductRepository productRepository;
+    private ProductRepository productRepository;
 
-    public ht8.Product getById(Integer id) {
-        return productRepository.findById(id).get();
+    public Optional<ht9.ProductDto> getById(Integer id) {
+        return productRepository.findById(id).map(ht9.ProductDto::new);
     }
 
-    public Page<ht8.Product> getAll(int page, int size) {
-        return productRepository.findAll(PageRequest.of(page, size));
+    public Page<ht9.ProductDto> getAll(int page, int size) {
+        return productRepository.findAll(PageRequest.of(page, size)).map(ht9.ProductDto::new);
     }
 
-    public List<ht8.Product> getAllSorted(ht8.SortDirection sortCost, ht8.SortDirection sortTitle, Boolean costFirst) {
+    public List<Product> getAllSorted(ht9.SortDirection sortCost, ht9.SortDirection sortTitle, Boolean costFirst) {
         Sort sortByCost = null;
         Sort sortByTitle = null;
         if (sortCost != null) {
-            if (sortCost == ht8.SortDirection.ASC) {
+            if (sortCost == ht9.SortDirection.ASC) {
                 sortByCost = Sort.by("cost");
             } else {
                 sortByCost = Sort.by("cost").descending();
@@ -34,7 +35,7 @@ public class ProductService {
         }
 
         if (sortTitle != null) {
-            if (sortTitle == ht8.SortDirection.ASC) {
+            if (sortTitle == ht9.SortDirection.ASC) {
                 sortByTitle = Sort.by("title");
             } else {
                 sortByTitle = Sort.by("title").descending();
@@ -54,27 +55,27 @@ public class ProductService {
         }
     }
 
-    public ht8.Product add(ht8.Product product) {
-        return productRepository.save(product);
+    public ht9.ProductDto addOrUpdate(ht9.ProductDto productDto) {
+        return new ht9.ProductDto(productRepository.save(new Product(productDto)));
     }
 
     public void delete(Integer id) {
         productRepository.deleteById(id);
     }
 
-    public List<ht8.Product> getAllByMinCost(Double minCost) {
+    public List<Product> getAllByMinCost(Double minCost) {
         return productRepository.findByCostGreaterThan(minCost);
     }
 
-    public List<ht8.Product> getAllByMaxCost(Double maxCost) {
+    public List<Product> getAllByMaxCost(Double maxCost) {
         return productRepository.findByCostLessThan(maxCost);
     }
 
-    public List<ht8.Product> getAllByMinAndMaxCost(Double minCost, Double maxCost) {
+    public List<Product> getAllByMinAndMaxCost(Double minCost, Double maxCost) {
         return productRepository.findByCostBetween(minCost, maxCost);
     }
 
-    public List<ht8.Product> getAllByTitle(String title) {
+    public List<Product> getAllByTitle(String title) {
         return productRepository.findByTitleIgnoreCaseContaining(title);
     }
 }
