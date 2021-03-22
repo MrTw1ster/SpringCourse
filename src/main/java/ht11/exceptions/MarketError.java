@@ -1,4 +1,4 @@
-package ht10.exceptions;
+package ht11.exceptions;
 
 import lombok.Data;
 

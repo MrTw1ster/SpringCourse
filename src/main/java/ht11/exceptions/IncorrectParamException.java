@@ -1,4 +1,4 @@
-package ht10.exceptions;
+package ht11.exceptions;
 
 public class IncorrectParamException extends RuntimeException{
     public IncorrectParamException(String msg) {

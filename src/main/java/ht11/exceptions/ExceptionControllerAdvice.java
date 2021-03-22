@@ -1,4 +1,4 @@
-package ht10.exceptions;
+package ht11.exceptions;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,16 +18,9 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler
-    public ResponseEntity<?> handleProductNotFoundException(ProductNotFoundException e) {
+    public ResponseEntity<?> handleUserNotFoundException(UserNotFoundException e) {
         log.error(e.getMessage());
         MarketError err = new MarketError(HttpStatus.NOT_FOUND.value(), e.getMessage());
         return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler
-    public ResponseEntity<?> handleSessionExpiredException(SessionExpiredException e) {
-        log.error(e.getMessage());
-        MarketError err = new MarketError(HttpStatus.UNAUTHORIZED.value(), e.getMessage());
-        return new ResponseEntity<>(err, HttpStatus.UNAUTHORIZED);
     }
 }
